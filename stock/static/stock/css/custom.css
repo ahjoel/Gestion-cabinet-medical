@@ -27,3 +27,15 @@
     pointer-events: none; /* Disable interaction with the field */
     color: #333; /* Text color */
 }
+
+.badge {
+    display: inline-block;
+    padding: 0.25em 0.5em;
+    font-size: 1rem;
+    font-weight: bold;
+    border-radius: 1.5rem; /* Pour une forme de pilule (rounded-pill) */
+    background-color: #b68e9f; /* Fond jaune (bg-warning) */
+    color: #343a40;
+    color: #d3d9e0; /* Texte sombre (text-dark) */
+    text-align: center;
+}

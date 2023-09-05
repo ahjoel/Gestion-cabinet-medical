@@ -6,7 +6,9 @@ from django.contrib import messages
 from django.contrib.auth import login
 from django.contrib.auth.decorators import login_required
 from django.db import models
-from django.db.models import F, Sum
+from django.db.models import F, Sum, ExpressionWrapper, DecimalField, IntegerField
+from django.db.models.functions import Cast
+
 
 from core import settings
 from .utils import render_to_pdf
@@ -39,7 +41,25 @@ def sign_up(request):
 def home(request):
     # users_with_group = User.objects.annotate(group_name=models.F('groups__name'))
     # user_data = users_with_group.filter(id=request.user.id).values('username', 'is_staff', 'group_name').first()
-    return render(request, 'accueil/accueil.html')
+    total_ht = LigneVente.objects.filter(disponible=True).aggregate(
+        total_ht=ExpressionWrapper(
+            Sum(F('qte') * F('tarification__prix') * 1.18),
+            output_field=IntegerField(),
+        )
+    )['total_ht']
+    total_products_count = Produit.objects.filter(disponibleP=True).count()
+    produitcommandes = LigneCommande.objects.filter(disponible=True).count()
+    produitcommandes_livre = LigneCommande.objects.filter(disponible=True, statut="LIVREE").count()
+    mouvements = Mouvement.objects.filter(disponible=True).order_by('-id')
+
+    context = {
+        "total_ht": total_ht,
+        "total_products_count": total_products_count,
+        "produitcommandes": produitcommandes,
+        "produitcommandes_livre": produitcommandes_livre,
+        "mouvements": mouvements
+    }
+    return render(request, 'accueil/accueil.html', context)
 
 
 @login_required(login_url="/login")
