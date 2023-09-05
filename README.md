@@ -1,6 +1,11 @@
 ## Application de Gestion du Stock de Phamarcie - Cabinet Médical 
 
 Application disponible ici : https://stockpharma.onrender.com/
+
+
+![Accueil](img.png)
+
+
 ## Configuration - windows
 
 Clonez le repository et accéder au dossier cloné :
