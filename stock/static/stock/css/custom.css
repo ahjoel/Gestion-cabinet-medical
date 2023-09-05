@@ -1,0 +1,29 @@
+.navbar-inverse {
+    background-color: #3b4997 !important;
+}
+
+.navbar-inverse .navbar-brand {
+    color: #fcfdff !important;
+}
+
+.navbar-top-links>li>a:hover{
+    color: #fcfdff !important;
+    background-color: rgba(222, 223, 225, 0.34) !important;
+}
+
+.navbar-inverse .navbar-nav>.active>a:hover{
+    color: #606973 !important;
+    background-color: rgba(222, 223, 225, 0.34) !important;
+}
+
+.navbar-top-links>.open>a {
+    color: #fcfdff !important;
+    background-color: rgba(222, 223, 225, 0.34) !important;
+}
+
+.readonly-field {
+    background-color: #f8f8f8; /* Light gray background */
+    border: 1px solid #ccc; /* Light gray border */
+    pointer-events: none; /* Disable interaction with the field */
+    color: #333; /* Text color */
+}

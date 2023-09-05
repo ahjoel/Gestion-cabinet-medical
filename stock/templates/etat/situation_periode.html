@@ -1,0 +1,142 @@
+{% extends '../base.html' %}
+
+{% block content %}
+{% load static %}
+
+<div class="row">
+    <div class="col-lg-12">
+        <h2 class="page-header">Etat Stock - Produit</h2>
+    </div>
+    <!-- /.col-lg-12 -->
+</div>
+
+{% if messages %}
+<div class="container">
+        <div class="col-md-4" style="margin-left: 955px">
+            <div class="alert alert-success" role="alert">
+                {% for message in messages %}
+                    {{message}}
+                {% endfor %}
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+        </div>
+</div>
+{% endif %}
+
+<!-- /.row -->
+<div class="row">
+    <div class="col-lg-12">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                Liste Mouvement de Produit
+
+            </div>
+            <!-- /.panel-heading -->
+            <div class="panel-body">
+                <div class="row">
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="form-group col-md-3">
+                            <label class="fw-bolder" style="margin-left:5px" for="date_debut">Date Début</label>
+                            <input class="form-control" required="true"  type="date" id="date_debut" name="date_debut" value="{{date_debut}}">
+                        </div>
+                        <div class="form-group col-md-3">
+                            <label class="fw-bolder" style="margin-left:10px">Date Fin</label>
+                            <input class="form-control" required="true"  type="date" id="date_fin" name="date_fin" value="{{date_fin}}">
+                        </div>
+                        <div class="form-group col-md-1">
+                            <label class="fw-bolder" style="margin-left:15px"></label>
+                            <input class="btn btn-sm btn-info" type="submit" value="Rechercher">
+                        </div>
+                    </form>
+                </div>
+                <div class="table-responsive">
+                {% if situationp|length > 0 %}
+                    <table class="table table-striped table-bordered table-hover" id="dataTables-produitstock">
+                        <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Code Produit</th>
+                            <th>Produit</th>
+                            <th>Quantité Initiale</th>
+                            <th>Quantité Livrée</th>
+                            <th>Quantité Vendu</th>
+                            <th>Quantité Apres</th>
+                            <th>Quantité Min</th>
+                            <th>Actions</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for situation in situationp %}
+                            <tr style="{% if situation.quantiteMinP >= situation.st_fin %} background-color: #eccdc9 {% endif %}">
+                                <td>{{ forloop.counter }}</td>
+                                <td>{{ situation.codeP }}</td>
+                                <td>{{ situation.nomP }}</td>
+                                <td>{{ situation.st_init|default_if_none:"0" }}</td>
+                                <td>{{ situation.qt_e }}</td>
+                                <td>{{ situation.qt_s }}</td>
+                                <td>{{ situation.st_fin|default_if_none:"0" }}</td>
+                                <td>{{ situation.quantiteMinP }}</td>
+                                <td class="text-center">
+                                    {% if situation.quantiteMinP >= situation.st_fin %}
+                                        <div>
+                                            <div class="badge-danger">
+                                                <span class="badge-danger">
+                                                    <a href="/create-lcommandes" class="btn btn-warning btn-xs">
+                                                        Commander
+                                                    </a>
+                                                </span>
+                                            </div>
+                                        </div>
+                                    {% else %}
+                                        <span>Stock Suffisant</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                {% else %}
+                    <p>Aucun enregistrement disponible :-)</p>
+                {% endif %}
+                </div>
+
+
+            </div>
+            <!-- /.panel-body -->
+        </div>
+        <!-- /.panel -->
+    </div>
+    <!-- /.col-lg-12 -->
+</div>
+
+
+{% endblock %}
+
+{% block js %}
+<script>
+    $(document).ready(function () {
+        $('#dataTables-produitstock').DataTable({
+            language: {
+                url: "{% static 'stock/js/french.json' %}"
+            },
+            /*"autoWidth": false,
+            columns: [
+                    { "width": "5%" },
+                    { "width": "10%" },
+                    { "width": "15%" },
+                    { "width": "30%" },
+                    {"width": "5%"}
+            ],*/
+            "columnDefs": [{
+                "targets": 4,
+                "orderable": false
+            }],
+        });
+    });
+</script>
+{% endblock %}
+

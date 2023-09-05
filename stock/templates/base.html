@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>PHARMA - App</title>
+    {% load static %}
+
+    <!-- Bootstrap Core CSS -->
+    <link href="{% static 'stock/css/bootstrap.min.css' %}" rel="stylesheet">
+
+
+    <!-- MetisMenu CSS -->
+    <link href="{% static 'stock/css/metisMenu.min.css' %}" rel="stylesheet">
+
+    <!-- Timeline CSS
+    <link href="{% static 'stock/css/timeline.css' %}" rel="stylesheet">-->
+
+    <!-- DataTables CSS -->
+    <link href="{% static 'stock/css/dataTables/dataTables.bootstrap.css' %}" rel="stylesheet">
+
+    <!-- DataTables Responsive CSS -->
+    <link href="{% static 'stock/css/dataTables/dataTables.responsive.css' %}" rel="stylesheet">
+
+    <!-- Custom CSS -->
+    <link href="{% static 'stock/css/startmin.css' %}" rel="stylesheet">
+
+    <!-- Morris Charts CSS
+    <link href="{% static 'stock/css/morris.css' %}" rel="stylesheet">-->
+    <link href="{% static 'stock/css/custom.css' %}" rel="stylesheet">
+    <!-- Custom Fonts -->
+    <link href="{% static 'stock/css/font-awesome.min.css' %}" rel="stylesheet" type="text/css">
+
+    <link rel="stylesheet" type="text/css" href="{% static 'stock/css/select2.min.css' %}">
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+    <script src="{% static 'stock/js/html5shiv.min.js' %}"></script>
+    <script src="{% static 'stock/js/1.4.2/respond.min.js' %}"></script>
+    <![endif]-->
+</head>
+
+<body>
+
+<div id="wrapper">
+
+    <!-- Navigation -->
+    <nav class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+        <div class="navbar-header">
+            <a class="navbar-brand" href="index.html">Pharma</a>
+        </div>
+
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+        </button>
+
+        <ul class="nav navbar-nav navbar-left navbar-top-links">
+            <li><a href="#"><i class="fa fa-home fa-fw"></i> Website</a></li>
+        </ul>
+
+        <ul class="nav navbar-right navbar-top-links">
+            <li class="dropdown navbar-inverse">
+                <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+                    <i class="fa fa-bell fa-fw"></i> <b class="caret"></b>
+                </a>
+                <ul class="dropdown-menu dropdown-alerts">
+                    <li>
+                        <a href="#">
+                            <div>
+                                <i class="fa fa-comment fa-fw"></i> New Comment
+                                <span class="pull-right text-muted small">4 minutes ago</span>
+                            </div>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#">
+                            <div>
+                                <i class="fa fa-twitter fa-fw"></i> 3 New Followers
+                                <span class="pull-right text-muted small">12 minutes ago</span>
+                            </div>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#">
+                            <div>
+                                <i class="fa fa-envelope fa-fw"></i> Message Sent
+                                <span class="pull-right text-muted small">4 minutes ago</span>
+                            </div>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#">
+                            <div>
+                                <i class="fa fa-tasks fa-fw"></i> New Task
+                                <span class="pull-right text-muted small">4 minutes ago</span>
+                            </div>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#">
+                            <div>
+                                <i class="fa fa-upload fa-fw"></i> Server Rebooted
+                                <span class="pull-right text-muted small">4 minutes ago</span>
+                            </div>
+                        </a>
+                    </li>
+                    <li class="divider"></li>
+                    <li>
+                        <a class="text-center" href="#">
+                            <strong>See All Alerts</strong>
+                            <i class="fa fa-angle-right"></i>
+                        </a>
+                    </li>
+                </ul>
+            </li>
+            <li class="dropdown">
+                {% if user.is_authenticated %}
+                <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+                    <i class="fa fa-user fa-fw"></i> Utilisateur : {{user.username}} <b class="caret"></b>
+                </a>
+                <ul class="dropdown-menu dropdown-user">
+                    {% with user_groups=request.user.groups.all %}
+                        {% if user_groups %}
+                            {% for group in user_groups %}
+                            <li>
+                                <a href="#"><i class="fa fa-user fa-fw"></i> Profile {{group.name}} </a>
+                            </li>
+                            {% endfor %}
+                        {% endif %}
+                    {% endwith %}
+                    <li class="divider"></li>
+                    <li>
+                        <a href="/logout"><i class="fa fa-sign-out fa-fw"></i> Déconnexion</a>
+                    </li>
+                </ul>
+                {% endif %}
+            </li>
+        </ul>
+        <!-- /.navbar-top-links -->
+    </nav>
+    {% with url_name=request.resolver_match.url_name %}
+    <aside class="sidebar navbar-default" role="navigation">
+        <div class="sidebar-nav navbar-collapse">
+            <ul class="nav" id="side-menu">
+
+                <li>
+                    <a href="{% url '/' %}" class="{% if url_name == '/' %} active {% endif %}"><i
+                            class="fa fa-dashboard fa-fw"></i> Accueil</a>
+                </li>
+                <li>
+                    <a href="{% url 'categories' %}"
+                       class="{% if url_name == 'categories' or url_name == 'create-categorie' or url_name == 'update-categorie' or url_name == 'delete-categorie'  %} active {% endif %}">
+                        <span class="icon"><i class="fa fa-suitcase fa-fw"></i></span> Catégorie
+                    </a>
+                </li>
+                <li>
+                    <a href="{% url 'produits' %}"
+                       class="{% if url_name == 'produits' or url_name == 'create-produit' or url_name == 'update-produit' or url_name == 'delete-produit'  %} active {% endif %}">
+                        <i class="fa fa-medkit fa-fw"></i> Produit
+                    </a>
+                </li>
+                <li>
+                    <a><i class="fa fa-archive fa-fw"></i> Stock<span class="fa arrow"></span></a>
+                    <ul class="nav nav-second-level
+                    {% if url_name == 'lcommandes' or url_name == 'create-lcommandes' or url_name == 'update-produitcommande' or url_name == 'delete-produitcommande' or url_name == 'livraisons' %}
+                        collapse in
+                    {% endif %}
+                    {% if url_name == 'create-llivraisons' or url_name == 'update-llivraisons' or url_name == 'delete-llivraisons' %}
+                        collapse in
+                    {% endif %}">
+                        <li>
+                            <a class="{% if url_name == 'lcommandes' or url_name == 'create-lcommandes' or url_name == 'update-produitcommande' or url_name == 'delete-produitcommande' %}
+                                            active
+                                       {% endif %}" href="lcommandes">Commande</a>
+                        </li>
+                        <li>
+                            <a class="{% if url_name == 'livraisons' or url_name == 'create-llivraisons' or url_name == 'update-llivraisons' or url_name == 'delete-llivraisons' %}
+                                            active
+                                       {% endif %}" href="livraisons">Livraison</a>
+                        </li>
+                        <li>
+                            <a href="notifications.html">Sortie</a>
+                        </li>
+                        <li>
+                            <a href="typography.html">Mouvement</a>
+                        </li>
+                    </ul>
+                    <!-- /.nav-second-level -->
+                </li>
+                <li>
+                    <a class="{% if url_name == 'tarifications' or url_name == 'create-tarifications' or url_name == 'update-tarifications' or url_name == 'delete-tarifications' %}
+                                            active
+                                       {% endif %}" href="tarifications"><i class="fa fa-money fa-fw"></i> Tarification</a>
+                </li>
+                <li>
+                    <a class="{% if url_name == 'ventes' or url_name == 'create-vente' or url_name == 'delete-vente' %}
+                                            active
+                                       {% endif %}" href="ventes"><i class="fa fa-money fa-fw"></i> Vente</a>
+                </li>
+                <li>
+                    <a class="{% if url_name == 'situations' %}
+                                            active
+                                       {% endif %}" href="situations"><i class="fa fa-arrows fa-fw"></i> Situation Stock</a>
+                </li>
+                <!--  -->
+                <li>
+                    <a><i class="fa fa-files-o fa-fw"></i> Statistiques<span class="fa arrow"></span></a>
+                    <ul class="nav nav-second-level {% if url_name == 'etat_vente' or url_name == 'etat_situationstock' %}
+                        collapse in
+                    {% endif %}">
+                        <li>
+                            <a class="{% if url_name == 'etat_vente' %}
+                                            active
+                                       {% endif %}" href="etat_vente">Etat Stock Vente</a>
+                        </li>
+                        <li>
+                            <a class="{% if url_name == 'etat_situationstock' %}
+                                            active
+                                       {% endif %}" href="etat_situationstock">Etat Stock Produit</a>
+                        </li>
+                    </ul>
+                    <!-- /.nav-second-level -->
+                </li>
+            </ul>
+        </div>
+    </aside>
+    {% endwith %}
+    <!-- /.sidebar -->
+
+    <div id="page-wrapper">
+        <div class="container-fluid">
+            {% block content %}
+            {% endblock %}
+        </div>
+        <!-- /.container-fluid -->
+    </div>
+    <!-- /#page-wrapper -->
+
+</div>
+<!-- /#wrapper -->
+
+<!-- jQuery -->
+<script src="{% static 'stock/js/jquery.min.js' %}"></script>
+
+<!-- Bootstrap Core JavaScript -->
+<script src="{% static 'stock/js/bootstrap.min.js' %}"></script>
+
+<!-- Metis Menu Plugin JavaScript -->
+<script src="{% static 'stock/js/metisMenu.min.js' %}"></script>
+
+<!-- Morris Charts JavaScript
+<script src="{% static 'stock/js/raphael.min.js' %}"></script>
+<script src="{% static 'stock/js/morris.min.js' %}"></script>
+<script src="{% static 'stock/js/morris-data.js' %}"></script>-->
+
+<!-- DataTables JavaScript -->
+<script src="{% static 'stock/js/dataTables/jquery.dataTables.min.js' %}"></script>
+<script src="{% static 'stock/js/dataTables/dataTables.bootstrap.min.js' %}"></script>
+
+<!-- Custom Theme JavaScript -->
+<script src="{% static 'stock/js/startmin.js' %}"></script>
+<script src="{% static 'stock/js/select2.min.js' %}"></script>
+<script>
+    $(document).ready(function () {
+        $('#dataTables-example').DataTable({
+            language: {
+                url: "{% static 'stock/js/french.json' %}"
+            },
+            responsive: true
+        });
+    });
+</script>
+{% block js %} {% endblock %}
+
+</body>
+
+</html>

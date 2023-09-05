@@ -1,0 +1,293 @@
+{% extends '../base.html' %}
+
+{% block content %}
+
+{% load crispy_forms_tags %}
+
+<div class="row">
+    <div class="col-lg-12">
+        <h2 class="page-header">{{ titre }} - Livraison Produit Commandé</h2>
+    </div>
+</div>
+
+{% if messages %}
+<div class="container">
+        <div class="col-md-4" style="margin-left: 955px">
+            <div class="alert {% if 'custom-success' in message.tags %}alert-success{% endif %}
+                          {% if 'custom-warning' in message.tags %}alert-warning{% endif %}" role="alert">
+                {% for message in messages %}
+                    {{message}}
+                {% endfor %}
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+        </div>
+</div>
+{% endif %}
+
+<div class="row">
+    <div class="col-lg-12">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                Formulaire Livraison Produit
+
+                <div class="pull-right">
+                    <div class="btn-group">
+                        <a href="/livraisons" class="btn btn-default btn-xs">
+                            Liste Livraisons Commandés
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <form method="post" autocomplete="off" id="livForm" data-cmd-url="{% url 'ajax_load_fcmd' %}" novalidate>
+                {% csrf_token %}
+                <div class="panel-body">
+                        <div class="form-row">
+                            <div class="form-group col-md-2">
+                                <label class="fw-bolder" style="margin-left:5px" for="codeL">Reference Livraison</label>
+                                <input class="form-control" required="true" readonly="true"  type="text" id="codeL" name="codeL" value="{{codeL}}" autocomplete="off">
+                            </div>
+                            <div class="form-group col-md-2">
+                                <label class="fw-bolder" style="margin-left:10px">Date</label>
+                                {{ form.dateL }}
+                            </div>
+                            <div class="form-group col-md-2">
+                                <label class="fw-bolder" style="margin-left:10px">Fournisseur</label>
+                                {{ form.fournisseur }}
+                            </div>
+                        </div>
+                </div>
+
+                <div class="row" style="margin-right: -95px">
+                    <div class="panel-default col-lg-3">
+                        <div class="panel-heading card shadow" style="margin-left: 20px; margin-bottom: 10px">
+
+                            <strong style="margin-top: 10px">FORMULAIRE INSERTION LIVRAISON PRODUIT - COMMANDE</strong>
+                            <br><br>
+                            <div class="card-body">
+                                <div class="form-group">
+                                    <label class="fw-bolder">Commande</label>
+                                    {{ form.commande }}
+                                </div>
+                                <div class="form-group">
+                                    <label class="fw-bolder">Produit Livré</label>
+                                    {{ form.produit }}
+                                </div>
+                                <div class="form-group">
+                                    <label class="fw-bolder">Quantité Livré</label>
+                                    {{ form.qte }}
+                                </div>
+                                <div class="form-group">
+                                    <label class="fw-bolder">Prix Unitaire</label>
+                                    {{ form.prixHt }}
+                                </div>
+
+                                <button class="btn btn-sm btn-warning" id="btn_cancel" type="reset">Annuler</button>
+                                <button type="button" id="btn_adder" class="btn btn-sm btn-primary" style="margin-left: 5px;"
+                                        >Ajouter
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="panel-default col-lg-8">
+                        <div class="panel-heading">
+                            <strong>LISTE DES PRODUITS LIVRES</strong>
+
+                            <div class="pull-right">
+                                    <span style="color:red;font-size:bold;" id="value">
+
+                                    </span>
+                            </div>
+                            <div class="table-responsive" style="margin-top: 25px">
+                                <table class="table table-striped table-bordered table-hover" id="ProduitLivre">
+                                    <thead>
+                                    <tr>
+                                        <th>#</th>
+                                        <th>Commande</th>
+                                        <th>Produit Livré</th>
+                                        <th>Qte</th>
+                                        <th>Prix Unitaire</th>
+                                        <th>Total</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="panel-footer">
+                    <div class="text-right">
+                        <button type="submit" class="btn btn-sm btn-info">Enregistrer</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block js %}
+<script type="text/javascript">
+    $(document).ready(function () {
+        $('#cmdAdder').select2({
+
+        });
+    });
+
+    var btnAdder = document.querySelector('#btn_adder');
+    var btnCanceler = document.querySelector('#btn_cancel');
+
+    var cmdAdderField = document.querySelector('#cmdAdder');
+    var pdtAdderField = document.querySelector('#pdtAdder');
+    var qteAdderField = document.querySelector('#qteAdder');
+    var prixAdderField = document.querySelector('#prixAdder');
+    var tableLine = document.querySelector('#ProduitLivre');
+    var tableLineBody = tableLine.querySelector('tbody');
+    var index = 0;
+    var currentIndex = null;
+
+    var actionUpdate = false;
+
+    function buildLine(line){
+        var index = line.dataset.index
+
+        var deleter = line.querySelector('.deleter')
+        var editer = line.querySelector('.editer')
+
+
+        deleter.addEventListener('click', function () {
+            var confirmation = confirm('Êtes-vous sûr? Cette action est irréversible!');
+
+            if (confirmation) {
+                console.log('deleter click');
+                line.remove();
+                setTimeout(function () {
+                    alert('La ligne a été supprimée.');
+                }, 0);
+            }
+        });
+
+        editer.addEventListener('click', function(){
+            console.log('editer click')
+            var c = line.querySelector('[name="cmdIds[]"]');
+            var cmdId = c ? c.value : null;
+            var p = line.querySelector('[name="pdtIds[]"]');
+            var pdtId = p ? p.value : null;
+            var qte = line.querySelector('[name="qtePdt[]"]').value;
+            var prix = line.querySelector('[name="prixPdt[]"]').value;
+
+            cmdAdderField.value = cmdId;
+            pdtAdderField.value = pdtId;
+            qteAdderField.value = qte;
+            prixAdderField.value = prix;
+
+            btnAdder.innerHTML = 'Modifier';
+            actionUpdate = true;
+
+            currentIndex = index;
+        });
+    }
+
+    function reinit(){
+        currentIndex = null;
+        btnAdder.innerHTML = 'Ajouter';
+        actionUpdate = false;
+        pdtAdderField.value = null;
+        qteAdderField.value = null;
+        prixAdderField.value = null;
+        cmdAdderField.value = null;
+        var select2Control = $('#cmdAdder');
+        select2Control.val(null).trigger('change');
+    }
+
+    function calculTotal(){
+        var table = document.getElementById("ProduitLivre"), sumValTva =0.0, sumVal =0;
+
+        if(table.rows.length >0) {
+            for(var i = 1; i < table.rows.length; i++){
+                sumVal = sumVal + parseInt(table.rows[i].cells[5].innerHTML);
+                sumValTva = sumVal * 1.18
+            }
+        }
+        document.getElementById("value").innerHTML = "TOTAL TTC : "+ sumValTva + " F CFA";
+    }
+
+    btnAdder.addEventListener('click', function(event){
+        var table = document.getElementById("ProduitLivre")
+        var cmdId = cmdAdderField.value;
+        var pdtId = pdtAdderField.value;
+        var qte = qteAdderField.value;
+        var prix = prixAdderField.value;
+
+        if(table.rows.length === 0){
+            alert('Svp, Veuillez enregistrer au moins une ligne livraison de produit !');
+            reinit();
+        }else {
+            if(cmdId && pdtId && qte && prix){
+                var cmdLibelle = cmdAdderField.options[cmdAdderField.selectedIndex].text;
+                var cmdLib = cmdLibelle.split(' ');
+                var commande = cmdLib[0];
+                var pdtLibelle = pdtAdderField.options[pdtAdderField.selectedIndex].text;
+                var currentLine = tableLineBody.querySelector('[data-index="'+ currentIndex +'"]');
+                var existedLine = tableLineBody.querySelector('[data-id="'+ pdtId +'"]');
+                var totalPrice = parseFloat(qte) * parseFloat(prix);
+
+                if(existedLine && !actionUpdate){
+                    alert('Ce produit est déja dans la liste. Merci de choisir un autre !');
+                }else{
+                    if (qte<=0){
+                        alert('Veuillez saisir une quantité correcte !');
+                    }else{
+                        if(actionUpdate && currentLine){
+                            currentLine.innerHTML = '<td style="text-align:center;">' + currentIndex + '</td><td><input type="hidden" name="cmdIds[]" value="'+ cmdId +'" />'+ commande +'</td><td><input type="hidden" name="pdtIds[]" value="'+ pdtId +'" />'+ pdtLibelle +'</td> <td><input type="hidden" name="qtePdt[]" value="'+ qte +'" />'+ qte +'</td> <td><input type="hidden" name="prixPdt[]" value="'+ prix +'" />'+ prix +'</td> <td>'+ totalPrice +'</td> <td style="text-align:left;"><a class="editer" data-index="'+ currentIndex +'">Modifier</a> <a class="deleter" style="margin-left:5px" data-index="'+ currentIndex +'">Supprimer</a></td>';
+                            buildLine(currentLine)
+                        }else{
+                            if(!currentLine){
+                                index++;
+                                if(index === 1){
+                                    $('#ProduitLivre').find('tbody tr').remove();
+                                }
+                                var newRow = tableLineBody.insertRow(0);
+                                newRow.setAttribute('data-index', index);
+                                newRow.setAttribute('data-id', pdtId);
+                                newRow.innerHTML = '<td style="text-align:center;">' + index + '</td><td><input type="hidden" name="cmdIds[]" value="'+ cmdId +'" />'+ commande +'</td><td><input type="hidden" name="pdtIds[]" value="'+ pdtId +'" />'+ pdtLibelle +'</td> <td><input type="hidden" name="qtePdt[]" value="'+ qte +'" />'+ qte +'</td> <td><input type="hidden" name="prixPdt[]" value="'+ prix +'" />'+ prix +'</td> <td>'+ totalPrice +'</td> <td style="text-align:left;"><a class="editer" data-index="'+ index +'">Modifier</a><a class="deleter" style="margin-left:5px" data-index="'+ index +'">Supprimer</a>  </td>';
+                                buildLine(newRow);
+                            }
+                        }
+                    }
+                    reinit();
+                }
+            }
+        }
+        calculTotal();
+    });
+
+
+
+
+</script>
+<script>
+    $("#cmdAdder").change(function () {
+      var url = $("#livForm").attr("data-cmd-url");
+      var comId = $(this).val();
+
+      $.ajax({
+        url: url,
+        data: {
+          'lcmd_ref': comId
+        },
+        success: function (data) {
+          $("#pdtAdder").html(data);
+        }
+      });
+
+    });
+</script>
+{% endblock %}
