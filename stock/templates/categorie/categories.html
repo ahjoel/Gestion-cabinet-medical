@@ -13,8 +13,7 @@
 {% if messages %}
 <div class="container">
         <div class="col-md-4" style="margin-left: 955px">
-            <div class="alert {% if 'custom-success' in message.tags %}alert-success{% endif %}
-                          {% if 'custom-warning' in message.tags %}alert-warning{% endif %}" role="alert">
+            <div class="alert alert-success" role="alert">
                 {% for message in messages %}
                     {{message}}
                 {% endfor %}
