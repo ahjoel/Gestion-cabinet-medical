@@ -19,9 +19,9 @@ from django.utils import timezone
 from django.views import View
 from django.http import *
 from stock.forms import RegisterForm, CategoryForm, ProduitForm, LigneCommandeForm, LigneLivraisonForm, \
-    TarificationForm, LigneVenteForm
+    TarificationForm, LigneVenteForm, CommandeConsultantForm
 from stock.models import Categorie, Produit, Commande, LigneCommande, LigneLivraison, Livraison, Mouvement, \
-    Tarification, Vente, LigneVente
+    Tarification, Vente, LigneVente, CommandeConsultant
 
 
 def sign_up(request):
@@ -158,6 +158,56 @@ def delete_produit(request, id):
         return redirect('/produits')
 
     return render(request, 'produit/produits.html', {'produit': produit})
+
+
+@login_required(login_url="/login")
+def commandeconsuls(request):
+    commandeconsuls = CommandeConsultant.objects.filter(disponible=True).order_by('-id')
+    return render(request, 'commandeconsultant/commandeconsultants.html', {"commandeconsuls": commandeconsuls})
+
+
+@login_required(login_url="/login")
+def create_commandeconsul(request):
+    titre = "Enregistrement"
+    if request.method == 'POST':
+        form = CommandeConsultantForm(request.POST)
+        if form.is_valid():
+            cm = form.save(commit=False)
+            cm.auteurC = request.user
+            cm.save()
+            messages.success(request, "Enregistrement effectué", extra_tags='custom-success')
+            return redirect("/create-commandeconsul")
+    else:
+        form = CommandeConsultantForm(statutd=True)
+
+    return render(request, 'commandeconsultant/commandeconsultant_form.html',  {"form": form, "titre": titre})
+
+
+@login_required(login_url="/login")
+def update_commandeconsul(request, id):
+    titre = "Modification"
+    cm = get_object_or_404(CommandeConsultant, id=id)
+    form = CommandeConsultantForm(request.POST or None, instance=cm)
+
+    if form.is_valid():
+        form.save()
+        messages.success(request, "Modification effectuée", extra_tags='custom-success')
+        return redirect('/commandeconsuls')
+
+    return render(request, 'commandeconsultant/commandeconsultant_form.html', {'form': form, "titre": titre})
+
+
+@login_required(login_url="/login")
+def delete_commandeconsul(request, id):
+    cm = get_object_or_404(CommandeConsultant, id=id)
+
+    if cm:
+        cm.disponible = False
+        cm.save()
+        messages.success(request, "Suppression effectuée", extra_tags='custom-success')
+        return redirect('/commandeconsuls')
+
+    return render(request, 'commandeconsultant/commandeconsultants.html', {'cm': cm})
 
 
 @login_required(login_url="/login")

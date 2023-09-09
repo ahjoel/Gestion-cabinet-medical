@@ -39,6 +39,29 @@ class Produit(models.Model):
         return self.codeP + " " + self.nomP + " " + self.mesureP
 
 
+class CommandeConsultant(models.Model):
+    EN_COURS = 'EN COURS'
+    TRAITEE = 'TRAITEE'
+    NON_DISPO = 'PDT RUPTURE STOCK'
+    CHOIX = [
+        (EN_COURS, 'EN COURS'),
+        (TRAITEE, 'TRAITEE'),
+        (NON_DISPO, 'PDT RUPTURE STOCK'),
+    ]
+    auteurC = models.ForeignKey(User, on_delete=models.PROTECT, related_name="autheur_consul")
+    auteurT = models.ForeignKey(User, on_delete=models.PROTECT, null=True, related_name="autheur_admin")
+    codeC = models.CharField(max_length=100, blank=False, null=False, unique=True)
+    dateC = models.DateField()
+    produit = models.ForeignKey(Produit, on_delete=models.PROTECT)
+    qte = models.IntegerField()
+    disponible = models.BooleanField(default=True)
+    statut = models.CharField(max_length=30, choices=CHOIX, default=EN_COURS)
+    date_creation = models.DateTimeField(auto_now_add=True)
+    date_modification = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return self.codeC
+
 class Commande(models.Model):
     auteurC = models.ForeignKey(User, on_delete=models.PROTECT)
     codeC = models.CharField(max_length=100, blank=False, null=False, unique=True)

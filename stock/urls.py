@@ -15,6 +15,11 @@ urlpatterns = [
     path('update-produit/<int:id>', views.update_produit, name='update-produit'),
     path('delete-produit/<int:id>', views.delete_produit, name='delete-produit'),
 
+    path('commandeconsuls', views.commandeconsuls, name='commandeconsuls'),
+    path('create-commandeconsul', views.create_commandeconsul, name='create-commandeconsul'),
+    path('update-commandeconsul/<int:id>', views.update_commandeconsul, name='update-commandeconsul'),
+    path('delete-commandeconsul/<int:id>', views.delete_commandeconsul, name='delete-commandeconsul'),
+
     path('lcommandes', views.listCommande, name='lcommandes'),
     path('create-lcommandes', views.create_listcommande, name='create-lcommandes'),
     path('update-produitcommande/<int:id>', views.update_lignecommande, name='update-produitcommande'),

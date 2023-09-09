@@ -7,7 +7,7 @@ from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
 
 from stock.models import Categorie, Produit, Commande, LigneCommande, Livraison, LigneLivraison, Mouvement, \
-    Tarification, Vente, LigneVente
+    Tarification, Vente, LigneVente, CommandeConsultant
 
 
 class RegisterForm(UserCreationForm):
@@ -49,6 +49,35 @@ class ProduitForm(forms.ModelForm):
     class Meta:
         model = Produit
         fields = ['codeP', 'categorie', 'nomP', 'descriptP', 'quantiteMinP', 'mesureP']
+
+
+class CommandeConsultantForm(forms.ModelForm):
+    EN_COURS = 'EN COURS'
+    TRAITEE = 'TRAITEE'
+    NON_DISPO = 'PDT RUPTURE STOCK'
+    CHOIX = [
+        (EN_COURS, 'EN COURS'),
+        (TRAITEE, 'TRAITEE'),
+        (NON_DISPO, 'PDT RUPTURE STOCK'),
+    ]
+    codeC = forms.CharField(label="Code Commande Consultant", required=True, widget=forms.TextInput(attrs={'class': 'form-control'}))
+    dateC = forms.DateField(label="Date Commande Consultant", required=True, widget=forms.DateInput(format='%Y-%m-%d', attrs={'type': 'date', 'class': 'form-control'}))
+    produit = forms.ModelChoiceField(queryset=Produit.objects.filter(disponibleP=True).order_by('-id'),
+                                     label="Produit Commande", required=True, widget=forms.Select(
+            attrs={'class': 'form-control'}))
+    qte = forms.IntegerField(label="Quantité Commande", required=True, widget=forms.TextInput(attrs={'class': 'form-control'}))
+    statut = forms.ChoiceField(label="Statut Commande", choices=CHOIX, required=True, widget=forms.Select(attrs={'class': 'form-control'}))
+
+    def __init__(self, *args, **kwargs):
+        statutd = kwargs.pop('statutd', False)  # Par défaut, le champ n'est pas désactivé
+        super(CommandeConsultantForm, self).__init__(*args, **kwargs)
+
+        if statutd:
+            self.fields['statut'].widget.attrs['disabled'] = 'disabled'
+
+    class Meta:
+        model = CommandeConsultant
+        fields = ['codeC', 'dateC', 'produit', 'qte', 'statut']
 
 
 class CommandeForm(forms.ModelForm):
